@@ -1,8 +1,6 @@
-/*
-    Exercício DIO - Pokedex (Original: https://github.com/digitalinnovationone/js-developer-pokedex)
-    Aluna: Ana Xavier
-    Data: 21/08/2023
-*/
+// Exercício DIO - Pokedex (Original: https://github.com/digitalinnovationone/js-developer-pokedex)
+// Aluna: Ana Xavier
+// Data: 21/08/2023 -->
 
 const pokemonList = document.getElementById('pokemonList')
 const loadMoreButton = document.getElementById('loadMoreButton')
@@ -29,25 +27,48 @@ function convertPokemonToLi(pokemon) {
     `
 }
 
-function loadPokemonItens(offset, limit) {
-    pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
-        const newHtml = pokemons.map(convertPokemonToLi).join('')
-        pokemonList.innerHTML += newHtml
-    })
+// --> Mostrar detalhes dos pokemons
+function displayPokemonDetails(pokemon) {
+    const pokemonDetails = document.getElementById('pokemonDetails');
+    pokemonDetails.innerHTML = `
+        <div class="detail">
+            <h2>${pokemon.name}</h2>
+            <p>Number: #${pokemon.number}</p>
+            <p>Type(s): ${pokemon.types.join(', ')}</p>
+            <img src="${pokemon.photo}" alt="${pokemon.name}">
+        </div>
+    `;
 }
 
-loadPokemonItens(offset, limit)
+// --> Atualizando o método 
+function loadPokemonItems(offset, limit) {
+    pokeApi.getPokemons(offset, limit).then((pokemons = []) => {
+        const newHtml = pokemons.map(convertPokemonToLi).join('');
+        pokemonList.innerHTML += newHtml;
+
+        // --> evento que ao clicar em cada pokemon, chama o display
+        const pokemonItems = document.querySelectorAll('.pokemon');
+        pokemonItems.forEach((item, index) => {
+            item.addEventListener('click', () => {
+                const selectedPokemon = pokemons[index];
+                displayPokemonDetails(selectedPokemon);
+            });
+        });
+    });
+}
 
 loadMoreButton.addEventListener('click', () => {
-    offset += limit
-    const qtdRecordsWithNexPage = offset + limit
+    offset += limit;
+    const qtdRecordsWithNextPage = offset + limit;
 
-    if (qtdRecordsWithNexPage >= maxRecords) {
-        const newLimit = maxRecords - offset
-        loadPokemonItens(offset, newLimit)
+    if (qtdRecordsWithNextPage >= maxRecords) {
+        const newLimit = maxRecords - offset;
+        loadPokemonItems(offset, newLimit);
 
-        loadMoreButton.parentElement.removeChild(loadMoreButton)
+        loadMoreButton.parentElement.removeChild(loadMoreButton);
     } else {
-        loadPokemonItens(offset, limit)
+        loadPokemonItems(offset, limit);
     }
-})
+});
+
+loadPokemonItems(offset, limit); 
